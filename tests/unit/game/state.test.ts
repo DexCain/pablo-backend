@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { calculateScore, createGame, drawCardFromDeck, drawCardFromDiscard, discardDrawnCard, viewPlayerCard, swapCardsBetweenPlayers } from '../../../src/game/state';
+import { calculateScore, createGame, drawCardFromDeck, drawCardFromDiscard, discardDrawnCard, viewPlayerCard, swapCardsBetweenPlayers, replaceCardInDeck } from '../../../src/game/state';
 import { TotalPlayerState } from '../../../src/game';
 
 describe('Game State Creation', () => {
@@ -146,6 +146,27 @@ describe('Deck and Discard Pile Management', () => {
     });
 });
 
+describe('Replace Card in Deck', () => {
+    it('Replaces a card in the player\'s hand with the drawn card and adds the replaced card to the discard pile', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+
+        // Simulate drawing a card from the deck
+        const gameAfterDraw = drawCardFromDeck(game, 'player-1');
+        const drawnCard = gameAfterDraw.players[0].drawnCard;
+
+        // Replace the first card in the player's hand with the drawn card
+        const cardToReplace = gameAfterDraw.players[0].hand[0];
+        const { gameState: updatedGame, discardedCard } = replaceCardInDeck(gameAfterDraw, 'player-1', cardToReplace.id);
+
+        const updatedPlayer = updatedGame.players.find(player => player.id === 'player-1');
+
+        expect(updatedPlayer?.hand).toContainEqual(drawnCard); // Expect that the player's hand now contains the drawn card
+        expect(updatedPlayer?.hand).not.toContainEqual(cardToReplace); // Expect that the player's hand no longer contains the replaced card
+        expect(updatedGame.discardPile).toContainEqual(discardedCard); // Expect that the discarded card is now in the discard pile
+    });
+});
+
 describe('View Player Card', () => {
     it('Allows a player to view a specific card in their hand', () => {
         const playerNames = ['Alice'];
@@ -161,9 +182,9 @@ describe('View Player Card', () => {
         const playerNames = ['Alice'];
         const game = createGame('game-1', playerNames);
 
-        const invalidCardId = 'invalid-card-id';
+        const cardNotInHand = game.deck[0]
 
-        expect(() => viewPlayerCard(game, 'player-1', invalidCardId)).toThrowError(`Card with id ${invalidCardId} not found in player's hand`);
+        expect(() => viewPlayerCard(game, 'player-1', cardNotInHand.id)).toThrow(`Card ${cardNotInHand.id} not found in player's hand`);
     });
 
     it('Allows a player to view a specific card in another player\'s hand', () => {
@@ -192,5 +213,7 @@ describe('Swap Cards Between Players', () => {
 
         expect(updatedPlayer1?.hand).toContainEqual(player2CardToSwap); // Expect that player 1 now has player 2's card
         expect(updatedPlayer2?.hand).toContainEqual(player1CardToSwap); // Expect that player 2 now has player 1's card
+        expect(updatedPlayer1?.hand).not.toContainEqual(player1CardToSwap) // Expect that player 1 no longer has their original swapped card
+        expect(updatedPlayer2?.hand).not.toContainEqual(player2CardToSwap) // Expect that player 2 no longer has their original swapped card
     });
 });

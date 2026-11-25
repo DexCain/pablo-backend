@@ -171,6 +171,7 @@ export function drawCardFromDiscard(state: GameState, playerId: string): GameSta
  * Params:
  * - state: GameState - The current state of the game
  * - playerId: string - The unique identifier of the player who is replacing a card
+ * - cardId: number - The id of the card in the player's hand to be replaced
  * 
  * Returns:
  * - { gameState: GameState; discardedCard: Card } - An object containing the new game state and the card that was discarded.
@@ -193,8 +194,8 @@ export function replaceCardInDeck(state: GameState, playerId: string, cardId: st
 
     const cardIndex = player.hand.findIndex(card => card.id === cardId);
 
-    if (cardIndex === -1) {
-        throw new Error(`Card with id ${cardId} not found in player's hand`);
+    if (cardIndex < 0 || cardIndex >= player.hand.length) {
+        throw new Error(`Card ${cardId} not found in player's hand`);
     }
 
     const updatedHand = [...player.hand];
@@ -268,10 +269,10 @@ export function discardDrawnCard(state: GameState, playerId: string): GameState 
  * Params:
  * - state: GameState - The current state of the game
  * - playerId: string - The unique identifier of the player whose card is to be viewed
- * - cardId: string - The unique identifier of the card to be viewed
+ * - cardId: number - The id of the card to be viewed
  * 
  * Returns:
- * - Card - The card with the specified id in the player's hand
+ * - Card - The card at the specified index in the player's hand
  * 
  * Throws:
  * - Error - If the player or card is not found
@@ -283,10 +284,10 @@ export function viewPlayerCard(state: GameState, playerId: string, cardId: strin
         throw new Error(`Player with id ${playerId} not found`);
     }
 
-    const card = player.hand.find(card => card.id === cardId);
+    const card= player.hand.find(card => card.id === cardId)
 
     if (!card) {
-        throw new Error(`Card with id ${cardId} not found in player's hand`);
+        throw new Error(`Card ${cardId} not found in player's hand`);
     }
 
     return card;
@@ -349,3 +350,5 @@ export function swapCardsBetweenPlayers(state: GameState, playerId1: string, car
         players: updatedPlayers
     };
 }
+
+// export function jumpInDiscard(state: GameState, playerId1: string, cardId: string)
