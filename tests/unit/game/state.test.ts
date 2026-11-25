@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { calculateScore, createGame, drawCardFromDeck, drawCardFromDiscard, discardDrawnCard } from '../../../src/game/state';
+import { calculateScore, createGame, drawCardFromDeck, drawCardFromDiscard, discardDrawnCard, viewPlayerCard, swapCardsBetweenPlayers } from '../../../src/game/state';
 import { TotalPlayerState } from '../../../src/game';
 
 describe('Game State Creation', () => {
@@ -143,5 +143,54 @@ describe('Deck and Discard Pile Management', () => {
         const updatedPlayer = updatedGame.players.find(player => player.id === 'player-1');
 
         expect(updatedPlayer?.drawnCard).toBeUndefined(); // Expect that the player no longer has a drawn card
+    });
+});
+
+describe('View Player Card', () => {
+    it('Allows a player to view a specific card in their hand', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+
+        const cardToView = game.players[0].hand[0];
+        const viewedCard = viewPlayerCard(game, 'player-1', cardToView.id);
+
+        expect(viewedCard).toEqual(cardToView); // Expect that the viewed card matches the card in the player's hand
+    });
+
+    it('Throws an error if the player tries to view a card that is not in their hand', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+
+        const invalidCardId = 'invalid-card-id';
+
+        expect(() => viewPlayerCard(game, 'player-1', invalidCardId)).toThrowError(`Card with id ${invalidCardId} not found in player's hand`);
+    });
+
+    it('Allows a player to view a specific card in another player\'s hand', () => {
+        const playerNames = ['Alice', 'Bob'];
+        const game = createGame('game-1', playerNames);
+
+        const cardToView = game.players[1].hand[0];
+        const viewedCard = viewPlayerCard(game, 'player-2', cardToView.id);
+
+        expect(viewedCard).toEqual(cardToView); // Expect that the viewed card matches the card in the other player's hand
+    });
+});
+
+describe('Swap Cards Between Players', () => {
+    it('Swaps cards between two players', () => {
+        const playerNames = ['Alice', 'Bob'];
+        const game = createGame('game-1', playerNames);
+
+        const player1CardToSwap = game.players[0].hand[0];
+        const player2CardToSwap = game.players[1].hand[0];
+
+        const updatedGame = swapCardsBetweenPlayers(game, 'player-1', player1CardToSwap.id, 'player-2', player2CardToSwap.id);
+
+        const updatedPlayer1 = updatedGame.players.find(player => player.id === 'player-1');
+        const updatedPlayer2 = updatedGame.players.find(player => player.id === 'player-2');
+
+        expect(updatedPlayer1?.hand).toContainEqual(player2CardToSwap); // Expect that player 1 now has player 2's card
+        expect(updatedPlayer2?.hand).toContainEqual(player1CardToSwap); // Expect that player 2 now has player 1's card
     });
 });
