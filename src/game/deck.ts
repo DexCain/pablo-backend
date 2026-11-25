@@ -9,20 +9,31 @@ export interface DeckOptions {
 export function createDeck({ jokers = 2 }: DeckOptions = {}): Card[] {
     
     const cards: Card[] = SUITS.flatMap(suit => 
-        RANKS.map((rank, index) => ({
-            kind: 'standard' as const,
-            id: `${suit}-${rank}`,
-            suit,
-            rank,
-            value: index + 1
-        })
+        RANKS.map((rank, index) => {
+            let value: number;
+
+            if (rank === 13 && (suit === 'spades' || suit === 'clubs')) {
+                value = -2; // Assign a value of -2 for King of Spades and King of Clubs
+            } else {
+                value = index + 1;
+            }
+
+            return {
+                kind: 'standard' as const,
+                id: `${suit}-${rank}`,
+                suit,
+                rank,
+                value
+            };
+        }
     ));
 
     for (let i = 0; i < jokers; i++) {
         cards.push({
             kind: 'joker' as const,
             id: `joker-${i + 1}`,
-            color: i % 2 === 0 ? 'red' : 'black'
+            color: i % 2 === 0 ? 'red' : 'black',
+            value: 0 // Assign a value of 0 for jokers
         });
     }
 
@@ -36,4 +47,18 @@ export function shuffleDeck<T>(deck: T[], rng: Rng): T[] {
         [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
     }
     return shuffledDeck;
+}
+
+export function drawCard<T>(deck: T[]): T | undefined {
+    return deck.pop();
+}
+
+export function drawCards<T>(deck: T[], count: number): T[] {
+    const cards: T[] = [];
+    for (let i = 0; i < count; i++) {
+        const card = drawCard(deck);
+        if (!card) break;
+        cards.push(card);
+    }
+    return cards;
 }

@@ -18,6 +18,19 @@ describe('Create Deck', () => {
         const uniqueCards = new Set(deck.map(card => card.id));
         expect(uniqueCards.size).toBe(54); // Ensures that all cards are unique, including jokers
     });
+
+    it('Assigns Correct Values to Standard Cards', () => {
+        const deck = createDeck({ jokers: 2 });
+
+        // Check that the values are assigned correctly for standard cards
+        expect(deck.find(card => card.id === 'hearts-1')?.value).toBe(1); // Ace of Hearts
+        expect(deck.find(card => card.id === 'spades-13')?.value).toBe(-2); // King of Spades
+        expect(deck.find(card => card.id === 'clubs-13')?.value).toBe(-2); // King of Clubs
+        expect(deck.find(card => card.id === 'diamonds-13')?.value).toBe(13); // King of Diamonds
+        expect(deck.find(card => card.id === 'hearts-13')?.value).toBe(13); // King of Hearts
+        expect(deck.find(card => card.id === 'joker-1')?.value).toBe(0); // Red Joker
+        expect(deck.find(card => card.id === 'joker-2')?.value).toBe(0); // Black Joker
+    });
 });
 
 describe('Shuffle Deck', () => {

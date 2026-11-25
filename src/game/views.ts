@@ -1,8 +1,8 @@
-import { GameState, PlayerState } from './types';
+import { GameState, VisiblePlayerState } from './types';
 
 export interface PlayerView {
-    you: PlayerState;
-    opponents: PlayerState[];
+    you: VisiblePlayerState;
+    opponents: VisiblePlayerState[];
     deckCount: number; // Number of cards remaining in the deck
     discardPileCount: number; // Number of cards in the discard pile
     currentPlayerId: string; // The id of the player whose turn it is
