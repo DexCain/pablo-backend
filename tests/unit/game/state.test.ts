@@ -130,4 +130,18 @@ describe('Deck and Discard Pile Management', () => {
         expect(updatedPlayer?.drawnCard).toBeDefined(); // Expect that the player has a drawn card
         expect(updatedGame.discardPile.length).toBe(0); // Expect that the discard pile is now empty
     });
+
+    it('Discards the drawn card and clears the drawn card from the player\'s state', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+
+        // Simulate drawing a card from the deck
+        const gameAfterDraw = drawCardFromDeck(game, 'player-1');
+        const drawnCard = gameAfterDraw.players[0].drawnCard;
+
+        const updatedGame = discardDrawnCard(gameAfterDraw, 'player-1');
+        const updatedPlayer = updatedGame.players.find(player => player.id === 'player-1');
+
+        expect(updatedPlayer?.drawnCard).toBeUndefined(); // Expect that the player no longer has a drawn card
+    });
 });
