@@ -62,3 +62,7 @@ export function drawCards<T>(deck: T[], count: number): T[] {
     }
     return cards;
 }
+
+export function discardCard<T>(deck: T[], card: T): void {
+    deck.push(card);
+}

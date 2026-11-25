@@ -5,7 +5,7 @@ export type MoveResult =
     | {ok: false; error: string};
 
 export function applyMove(state: GameState, action: any): MoveResult {
-    switch (action.type) {
+    switch (action.type) { 
         case 'DRAW_CARD':
             return drawCard(state, action.playerId);
         case 'DISCARD_CARD':

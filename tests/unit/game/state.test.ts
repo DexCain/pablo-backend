@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { calculateScore, createGame } from '../../../src/game/state';
+import { calculateScore, createGame, drawCardFromDeck, drawCardFromDiscard, discardDrawnCard } from '../../../src/game/state';
 import { TotalPlayerState } from '../../../src/game';
 
 describe('Game State Creation', () => {
@@ -84,4 +84,50 @@ describe('Score Calculation', () => {
         expect(updatedPlayer.score).toBe(9); // 3 + 7 + 1 + -2 = 9
     });
 
+});
+
+describe('Score Calculation with Negative Values', () => {
+    it('Calculates the score correctly when there are negative value cards', () => {
+        const player: TotalPlayerState = {
+            id: 'player-4',
+            name: 'David',
+            hand: [
+                { kind: 'standard', id: 'card-1', suit: 'spades', rank: 13, value: -2 }, // King of Spades
+                { kind: 'standard', id: 'card-2', suit: 'clubs', rank: 13, value: -2 }, // King of Clubs
+            ],
+            score: 0
+        };
+
+        const updatedPlayer = calculateScore(player);
+        expect(updatedPlayer.score).toBe(-4); // -2 + -2 = -4
+    });
+});
+
+describe('Deck and Discard Pile Management', () => {
+    it('Draws a card from the deck and adds it to the player\'s hand', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+        const initialDeckSize = game.deck.length;
+
+        const updatedGame = drawCardFromDeck(game, 'player-1');
+        const updatedPlayer = updatedGame.players.find(player => player.id === 'player-1');
+
+        expect(updatedPlayer?.drawnCard).toBeDefined(); // Expect that the player has a drawn card
+        expect(updatedGame.deck.length).toBe(initialDeckSize - 1); // Expect that the deck size has decreased by 1
+    });
+
+    it('Draws a card from the discard pile and adds it to the player\'s hand', () => {
+        const playerNames = ['Alice'];
+        const game = createGame('game-1', playerNames);
+
+        // Simulate discarding a card to the discard pile
+        const cardToDiscard = game.players[0].hand[0];
+        game.discardPile.push(cardToDiscard);
+
+        const updatedGame = drawCardFromDiscard(game, 'player-1');
+        const updatedPlayer = updatedGame.players.find(player => player.id === 'player-1');
+
+        expect(updatedPlayer?.drawnCard).toBeDefined(); // Expect that the player has a drawn card
+        expect(updatedGame.discardPile.length).toBe(0); // Expect that the discard pile is now empty
+    });
 });

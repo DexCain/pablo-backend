@@ -25,6 +25,7 @@ export interface VisiblePlayerState {
     id: string; // unique id to identify the player
     name: string;
     score: number; // The player's current score in the game
+    drawnCard?: Card; // The card that the player has drawn, if any
 }
 
 export interface TotalPlayerState extends VisiblePlayerState {
@@ -43,6 +44,8 @@ export interface GameState {
     winnerId?: string; // The id of the player who won the game, if the game has ended
 }
 
+export type DrawSource = 'deck' | 'discard';
+
 export type GameAction =
-    | { type: 'DRAW_CARD'; playerId: string }
-    | { type: 'PLAY_CARD'; playerId: string; cardId: string }
+    | { type: 'DRAW_CARD'; playerId: string; source: DrawSource }
+    | { type: 'REPLACE_CARD'; playerId: string; cardId: string }
